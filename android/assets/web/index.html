@@ -1,0 +1,182 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <link rel="stylesheet" href="style.css" />
+    <script>
+      let urlParams = new URLSearchParams(window.location.search);
+      const roomName = urlParams.get("id");
+    </script>
+    <title>Messages</title>
+  </head>
+  <body>
+    <div id="messages" class="element"></div>
+    <div id="toolbar">
+      <textarea
+        id="text"
+        class="element"
+        autocomplete="off"
+        placeholder="Type message..."
+      ></textarea>
+      <span id="file-add" class="element action"> </span>
+      <button id="send" class="element action"></button>
+    </div>
+    <script type="module">
+      import { io } from "https://cdn.socket.io/4.7.5/socket.io.esm.min.js";
+
+      const socket = io("wss://qrmess-api.glitch.me/", {
+        query: {
+          id: roomName,
+        },
+      });
+
+      let files = [];
+
+      socket.on("message", (message) => {
+        if (message.type == "message") showMessage(message.body, "stranger");
+        else if (message.type == "info") {
+          switch (message.body) {
+            case "file_upload":
+              showFile(message.name, message.url, "stranger");
+              break;
+            case "user_disconnect":
+              console.log("DISCONNECTED");
+              deleteFiles();
+              break;
+          }
+        }
+      });
+
+      document.querySelector("#send").onclick = (e) => {
+        let text = document.querySelector("textarea").value;
+
+        if (text.replaceAll(" ", "").length == 0) return (e.target.value = "");
+
+        socket.emit("message", {
+          type: "message",
+          body: text,
+        });
+
+        showMessage(text, "user");
+        document.querySelector("textarea").value = "";
+      };
+
+      document.querySelector("#file-add").onclick = chooseFile;
+
+      function showMessage(text, who) {
+        const messageDiv = document.createElement("div");
+        messageDiv.classList.add("message");
+        messageDiv.classList.add(who);
+
+        messageDiv.innerHTML = `
+        <p>${text}</p>
+        `;
+
+        document.querySelector("#messages").appendChild(messageDiv);
+      }
+
+      function chooseFile() {
+        const inp = document.createElement("input");
+        inp.type = "file";
+        inp.multiple = true;
+
+        inp.onchange = (e) => sendFiles(e.target.files);
+
+        inp.click();
+        inp.remove();
+      }
+
+      async function sendFiles(f) {
+        console.log(f.length);
+        // start loading animation
+        const loader = document.createElement("div");
+        const uploadButton = document.querySelector("#file-add");
+
+        loader.id = "loader";
+        uploadButton.classList.add("loading");
+
+        uploadButton.appendChild(loader);
+
+        for (let i = 0; i < f.length; i++) {
+          const fd = new FormData();
+          fd.append("file", f[i]);
+
+          const resp = await fetch("https://qrmess-api.glitch.me/upload", {
+            method: "POST",
+            body: fd,
+          });
+
+          if (resp.status != 200) return console.err("File upload error");
+
+          const data = await resp.json();
+
+          socket.emit("message", {
+            type: "info",
+            body: "file_upload",
+            url: data.url,
+            name: data.name,
+          });
+
+          showFile(data.name, data.url, "user");
+        }
+
+        // stop loading animation
+        loader.remove();
+        uploadButton.classList.remove("loading");
+      }
+
+      async function showFile(name, url, who) {
+        const fileDiv = document.createElement("div");
+        fileDiv.classList.add("message", "file", who);
+
+        if (who == "user") {
+          fileDiv.innerHTML = `
+              <a>${name}</a>
+          `;
+        } else {
+          fileDiv.innerHTML = `
+            <a>${name}</a>
+            <img src="icons/download.png" />
+        `;
+        }
+
+        fileDiv.onclick = async (e) => {
+          if (
+            e.target.classList.contains("user") ||
+            e.target.getAttribute("downloaded") == "true"
+          )
+            return;
+
+          Android.downloadFile(url, name);
+          e.target.setAttribute("downloaded", "true");
+
+          // TODO : I DONT ACTUALLY KNOW IF ITS DOWNLOADED SO IF IT BREAKS I WILL COME BACK (probably not)
+          e.target.querySelector("img").src = "icons/checked.png";
+        };
+
+        document.querySelector("#messages").appendChild(fileDiv);
+      }
+
+      function deleteFiles() {
+        document.querySelector("#toolbar").innerHTML = `
+          <h1 id="disconnect-info" class="element">Recpient disconnected</h1>
+        `;
+
+        socket.disconnect();
+
+        if (files.length === 0) return;
+
+        document.querySelectorAll(".file").forEach((element) => {
+          element.style.pointerEvents = "none";
+        });
+
+        fetch("https://qrmess-api.glitch.me/delete", {
+          method: "DELETE",
+          body: JSON.stringify(files),
+          headers: { "Content-Type": "application/json" },
+        });
+      }
+    </script>
+  </body>
+</html>

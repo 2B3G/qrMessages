@@ -1,0 +1,177 @@
+html,
+body {
+  height: 100%;
+  width: 100%;
+}
+
+body {
+  margin: 0;
+  overflow: hidden;
+  background: linear-gradient(90deg, rgb(51 45 117) 49%, rgb(49 68 144) 100%);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  flex-direction: column;
+  gap: 5px;
+}
+
+:root {
+  color: white;
+  font-family: arial;
+}
+
+.element {
+  border-radius: 5px;
+  border: solid white 1px;
+  background-color: #171726;
+}
+
+#messages {
+  width: 98%;
+  height: 92%;
+  display: flex;
+  flex-direction: column;
+  overflow-y: scroll;
+}
+
+#toolbar {
+  height: 6%;
+  width: 98%;
+  display: flex;
+  align-items: center;
+  overflow: hidden;
+  gap: 5px;
+  min-height: 50px;
+}
+
+#toolbar textarea {
+  color: white;
+  font-family: arial;
+  font-size: 20px;
+  padding: 1vw;
+  height: 75%;
+  width: 65%;
+  outline: none;
+  resize: none;
+}
+
+.message {
+  max-width: 48%;
+  border: solid wheat 1px;
+  border-radius: 5px;
+  margin: 10px;
+}
+
+.message p {
+  padding: 5px;
+  margin: 0;
+  font-size: 1.3rem;
+  word-break: break-all;
+  letter-spacing: 1px;
+  white-space: pre-wrap;
+}
+
+.user {
+  align-self: flex-end;
+  background: #4361ee;
+}
+
+.stranger {
+  align-self: flex-start;
+  background: darkslateblue;
+}
+
+#file-add {
+  width: 20%;
+  height: 90%;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  background: url(icons/file-add.png) center / 35px no-repeat;
+  background-color: #171726;
+}
+
+#file-add:active {
+  background-color: #272745;
+}
+
+.loading {
+  background: none !important;
+}
+
+#loader {
+  width: 20px;
+  height: 20px;
+  border: 5px solid #302a46;
+  border-top: 5px solid #ffffff;
+  border-radius: 50%;
+  animation: spin 2s ease infinite;
+}
+
+@keyframes spin {
+  0% {
+    transform: rotate(0deg);
+  }
+  100% {
+    transform: rotate(360deg);
+  }
+}
+
+.file {
+  width: 230px;
+  height: 50px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  background-color: #302f3e;
+  transition: background-color 0.1s;
+  cursor: pointer;
+}
+
+.file:active {
+  background-color: #292936;
+}
+
+.file * {
+  pointer-events: none;
+  user-select: none;
+}
+
+.file a {
+  overflow: hidden;
+  width: 95%;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  text-decoration: underline;
+  text-underline-offset: 3px;
+  color: rgb(160, 160, 244);
+  font-size: 16px;
+  padding: 5px;
+}
+
+.file img {
+  height: 30px;
+  margin: 10px;
+  margin-left: 0px;
+}
+
+#send {
+  width: 20%;
+  height: 96%;
+  background: url("icons/enter.png") center/ 35px no-repeat;
+  background-color: #171726;
+}
+
+#send:active {
+  background-color: #272745;
+}
+
+#disconnect-info {
+  width: 100%;
+  height: 100%;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  font-size: 1.8em;
+  color: lightgrey;
+}

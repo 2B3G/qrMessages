@@ -1,0 +1,31 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <link rel="stylesheet" href="chat.css" />
+    <script>
+      const urlParams = new URLSearchParams(window.location.search);
+      const roomName = urlParams.get("id");
+    </script>
+    <title>Chat</title>
+  </head>
+  <body>
+    <div id="messages" class="element"></div>
+    <div id="toolbar">
+      <textarea
+        class="element"
+        placeholder="Type message"
+        autocomplete="off"
+      ></textarea>
+      <span id="file-add" class="element toolbar-element">
+        <img src="icons/file-add.png" />
+      </span>
+      <span id="send" class="element toolbar-element">
+        <img src="icons/enter.png" />
+      </span>
+    </div>
+    <script src="js/chat.js" type="module"></script>
+    <script src="js/neutralino.js"></script>
+    <script src="js/main.js"></script>
+  </body>
+</html>
